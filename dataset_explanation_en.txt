@@ -1,0 +1,41 @@
+# Data explanation
+
+Every given dataset only contains one machine with the *same* `machine_id`. There is no need to match data from different machines.
+
+## recipe_data
+
+The file recipe_data.csv contains three columns: `machine_identifier`, `timestamp`, `recipe`.
+`machine_identifier` has string values which don't change, `timestamp` defines the creation
+time of a new `recipe` and this column contains the specific product names of a new recipe.
+
+## oee_data
+
+The file oee_data.csv contains three columns: `machine_identifier`, `timestamp`, `expected_cycles_per_minute`, `actual_cycles_per_minute`.
+This file contains partial performance metrics of our packaging machines based on target and actual values.
+(target: `expected_cycles_per_minute`, actual: `actual_cycles_per_minute`).
+`machine_identifier` has string values which don't change, for each datapoint there is a `timestamp`, due to the eventdriven nature of the target and actual values. Each row of `expected_cycles_per_minute` and `actual_cycles_per_minute` has to contain at least one value which isn't null. Both values reflect the performance metric of our machine, the performance is measured on a minutely basis and can be described as follows: 10 cycles/minute = 6 seconds per cycle. The `actual_cycles_per_minute` describe the measured performance for this machine at the given moment over the last minute. The value of `expected_cycles_per_minute` can be adjusted by our customers at any given time. Depending on its value, the machine either throttles or tries to reach the configured performance.
+
+## package_data
+
+The file oee_data.csv contains three columns: `machine_identifier`, `timestamp`, `good_packs`, `reject_packs`.
+This file contains the other part of the machine performance metrics - produced packs. These can be divided into
+good and reject packs. One machine cycle creates 24 packages, which can be arbitrarily distributed into good and reject.
+Each value of the columns `good_packs` and `reject_packs` has an associated `timestamp` which describes the time at what
+the machine finished the corresponding cycle. Each row in this dataset is equivalent to one machine cycle.
+
+## error_messages
+
+The files error_messages_accumulated/timeline.csv contain error reasons of our machine and contain the following columns:
+    `machine_identifier`, `timestamp`, `accumulated_dead_time`, `identifier`, `station`, `station_instance`, `subsystem_instance`, `code`
+Each row in the error_messages_accumulated file has an associated `timestamp` that describes the interval of one hour. `accumulated_dead_time` is the duration of the corresponding error `identifier` in seconds for the matching timestamp.
+The column `identifier` is a unique error id of the machine and is equivalent to one error reason. The `identifier` contains combined information of all following columns. The columns `station` and `station_instance` are connected, `station`
+describes the station on the machine and `station_instance` describes the occurrence of that station. If `station_instance` = 0
+then this station has an occurrence of 1 and if `station_instance` = 1 there are two same stations on this machine.
+`subsystem_instance` describes a component on this station and `code` references to a error id on the station with its
+subsystem.
+
+The error_messages_timeline file is almost identical and contains the following columns:
+    `machine_identifier`, `start_ts`, `end_ts`, `duration_in_s`, `identifier`, `station`, `station_instance`, `subsystem_instance`, `code`
+There is one difference, as there are no accumulated values, but the single events of error messages of the machine as a timeline.
+Meaning that, `start_ts`, `end_ts` and `duration_ts` describe exactly what they are. The start, end and duration of the corresponding
+error.

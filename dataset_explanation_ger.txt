@@ -1,0 +1,55 @@
+# Erklärung Daten
+
+Jeder Datensatz beinhaltet nur die Daten *einer* Maschine.
+
+Generelle Informationen:
+Die Maschine arbeitet Taktbasiert und erzeugt innerhalb eines Taktes eine Anzahl von 24 Packungen, diese können eine beliebe Aufteilung von Gut- und Schlecht besitzen.
+
+Begriffserklärung: 
+- Takt = Cycle
+- good_packs = Gutpackung
+- reject_packs = Schlechtpackung
+
+## recipe_data
+
+Die Datei recipe_data.csv beinhaltet drei Spalten: `machine_identifier`, `timestamp`, `recipe`.
+Der `machine_identifier` ist ein string und ändert sich nicht, der `timestamp` beschreibt den Zeitpunkt
+zu dem ein neues Rezept angelegt wurde und die Spalte `recipe` enthält den entsprechenden Namen
+des Rezeptes.
+
+## package_data
+
+Die Datei package_data.csv beinhaltet vier Spalten: `machine_identifier`, `timestamp`, `good_packs`, `reject_packs`.
+Die Daten beinhalten den anderen Teil unserer Leistungsmetriken unserer Maschinen. Die Metrik wird nach Gut- und Schlechtpackung
+unterteilt. Ein Maschinentakt erzeugt 24 Packungen, diese können ein beliebiges Gut/Schlecht-Verhältnis besitzen. 
+Der `machine_identifier` ist ein string und ändert sich nicht, zu jedem Wert in den Spalten `good_packs`, sowie `reject_packs`
+wird ein `timestamp` zugeordnet, dieser beschreibt den Zeitpunkt der Beendigung eines Maschinentaktes.
+Jede Zeile im Datensatz entspricht einem Maschinentakt.
+
+
+## oee_data
+
+Die Datei oee_data.csv beinhaltet vier Spalten: `machine_identifier`, `timestamp`, `expected_cycles_per_minute`, `actual_cycles_per_minute`.
+Die Daten beinhalten die einen Teil unserer Leistungsmetriken unserer Maschinen auf Soll- und Istbasis 
+(Soll: `expected_cycles_per_minute`, Ist: `actual_cycles_per_minute`).
+Der `machine_identifier` ist ein string und ändert sich nicht, zu jedem Datenpunkt gibt es einen `timestamp`, da die beiden Spalten "Eventdriven" sind, muss jeweils nur eine der beiden Spalten einen Wert pro Zeile besitzen.
+Jede Zeile muss mindestens einen Wert der beiden Spalten `expected_cycles_per_minute` und `actual_cycles_per_minute` beinhalten. Beide Werte spiegeln die Performanz der Maschine wider, diese ist beispielhaft wie folgt definiert: 10 Cycles/Minute = 6 Sekunden/Cycle. Die `actual_cycles_per_minute` beschreiben die erwartete Performanz der Maschine bis zum nächsten Event . Der Wert der `expected_cycles_per_minute` ist ein konfigurierbarer Wert am HMI der Maschine und kann jeder Zeit vom Kunden geändert werden. Je nach Einstellung versucht die Maschine die eingestellte Leistung zu erreichen, oder verringert ihre Leistung.
+
+
+## error_messages
+
+Die Dateien error_messages_accumulated/timeline.csv beinhalten alle Stillstandsgründe der Maschine des Zeitraums und beinhalten
+folgende Spalten für die Datei error_messages_accumulated: 
+    `machine_identifier`, `timestamp`, `accumulated_dead_time`, `identifier`, `station`, `station_instance`, `subsystem_instance`, `code`
+Der `machine_identifier` ist ein string und ändert sich nicht, zu jedem Datenpunkt gibt es einen `timestamp` der den Zeitraum einer Stunde abbildet. `accumulated_dead_time` beschreibt die Stillstandszeit der jeweiligen FehlerId in Sekunden für den Zeitraum einer Stunde. Die Spalte `identifier` bezeichnet die eindeutig zuordenbare FehlerId auf der Maschine und beschreibt einen eindeutigen Fehlergrund. Der `identifier` beinhaltet die kombinierten Informationen aller nachfolgenden Spalten. Die Spalten `station` und `station_instance` hängen zusammen
+und beschreiben die Station, sowie deren Ausprägung (z.B. sollte die Station mit der ID 20 zweimal an der Maschine vorkommen
+so bekommt die erste Station eine 0 und die zweite eine 1 zugeordnet --> station_instance = 0 / 1). Die `subsystem_instance`
+beschreibt eine Komponente innerhalb dieser Station mit entsprechender Ausprägung. Der `code` bezeichnet die Fehlernummer
+innerhalb der Station und des Subsystems.
+
+Die error_messages_timeline ist fast identisch aufgebaut und beinhaltet folgende Spalten:
+    `machine_identifier`, `start_ts`, `end_ts`, `duration_in_s`, `identifier`, `station`, `station_instance`, `subsystem_instance`, `code`
+und die Logik ist analog zum accumulated Datensatz. einziger Unterschied ist, dass die timeline statt akkumulierter Werte
+die einzelnen Events mit `start_ts`, `end_ts` und der zugehörigen `duration_in_s` beinhaltet. Alle Spalten verhalten sich
+entsprechend ihrem Namen.
+
